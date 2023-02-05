@@ -32,12 +32,12 @@ export default {
 
 .container {
 	max-width: 430px !important;
-	background: #EAEAEA;
+	background: #fff;
 	height: 100vh;
 }
 
 .container .card-navbar {
-	background: #EAEAEA !important;
+	/* background: #EAEAEA !important; */
 	-webkit-box-shadow: none;
 	-moz-box-shadow: none;
 	box-shadow: none;
