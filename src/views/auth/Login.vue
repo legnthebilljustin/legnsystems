@@ -1,33 +1,33 @@
 <template>
-    <div class="wrapper">
+    <form class="wrapper" @submit.prevent="submitForm">
         <div class="title">Credentials</div>
         <input type="text" v-model="name" minlength="4" maxlength="12" placeholder="name">
         <div class="subtitle">your name</div>
         <input type="password" v-model="password" minlength="4" maxlength="8">
         <div class="subtitle">your unique personal code</div>
-        
-        <button class="btn btn-primary mt-5" id="loginbtn" @click="submitForm">Login</button>
+
+        <button class="btn btn-primary mt-5" id="loginbtn" type="submit">Login</button>
         <div class="invitation">Doesn't have an account? <span>Request an invitation.</span></div>
         <div class="forgot-code">Forgot your access?</div>
-    </div>
+    </form>
 </template>
 
 <script setup>
-import router from '@/router'
-import { useUserStore } from '@/store/user-store'
+import router from "@/router"
+import { useUserStore } from "@/store/user-store"
 
-    let name = '', password = ''
-    const userStore = useUserStore()
-    
-    const submitForm = async () => {
-        let button = document.getElementById('loginbtn')
-        button.classList.add('btn-loading')
+let name = ""; let password = ""
+const userStore = useUserStore()
 
-        await userStore.login({ name, password })
-        router.push({ name: "Accounts" })
-        
-        button.classList.remove('btn-loading')
-    }
+const submitForm = async () => {
+    const button = document.getElementById("loginbtn")
+    button.classList.add("btn-loading")
+
+    await userStore.login({ name, password })
+    router.push({ name: "Accounts" })
+
+    button.classList.remove("btn-loading")
+}
 </script>
 
 <style lang="css" scoped>

@@ -31,15 +31,51 @@
 </template>
 
 <script setup>
+import { useRequestStore } from '@/store/request-store';
+import { reactive } from 'vue-demi';
+
+const emit = defineEmits(['formAction'])
+const requestStore = useRequestStore()
+
 const formFields = ["name", "username", "password"]
 const accountTypes = ["email", "investment", "banking", "others"]
 
-const submitForm = () => {
+const data = reactive({
+    errors: null
+})
+
+const submitForm = async () => {
     const btn = document.getElementById("submitbtn")
     btn.classList.add("btn-loading")
 
+    const { name, username, password, account_type } = Object.fromEntries(new FormData(event.target))
+    const payload = {
+        url: '/accounts',
+        formData: {
+            name, username, password, type: account_type
+        }
+    }
+    
+    const [ response, error ] = await requestStore.post(payload)
+    if (!error) {
+        emit("formAction", { data: response, type: account_type })
+        document.getElementById("modal-form").classList.remove("show")
+    }
+    else {
+        data.errors = error
+    }
+
+    closeFormModal()
     btn.classList.remove("btn-loading")
-    document.getElementById("modal-form").classList.remove("show")
+    
+}
+
+const closeFormModal = () => {
+    const form = document.getElementById("modal-form")
+    form.classList.remove("show")
+    form.style.display = 'none'
+    const backdrop = document.querySelector('.modal-backdrop')
+    backdrop.parentNode.removeChild(backdrop)
 }
 </script>
 

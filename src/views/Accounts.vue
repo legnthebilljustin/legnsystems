@@ -4,53 +4,41 @@
             <button data-bs-toggle="modal" data-bs-target="#modal-form">+&nbsp; ADD NEW</button>
         </div>
         <div id="category-btns-wrapper">
-            <button>emails</button>
-            <button>investment</button>
-            <button>banking</button>
-            <button>others</button>
+            <button v-for="(type) in accountTypes" :key="type"
+                :class="type == data.currentType ? 'active' : ''"
+                @click="data.currentType = type"
+                v-html="type"
+            >
+            </button>
         </div>
         <hr>
-
+    
         <div id="content-wrapper">
-            <ul>
-                <li>
-                    <div class="grid-item">
-                        <div class="main-text name "><strong>AUB Credit Card</strong></div>
-                    </div>
-                    <div class="grid-item">
-                        <div class="main-text username">billjustin15</div>
-                    </div>
-                    <div class="grid-item">
-                        <div class="main-text password">billjustin15</div>
-                    </div>
-                    <div class="grid-item">
-                        <div class="main-text actions">
-                            <i class='bx bx-edit'></i>
-                            <i class='bx bx-trash' data-bs-toggle="modal" data-bs-target="#modal-delete"></i>
+            <template v-if="data.hasLoaded && data.accounts != null">
+                <ul>
+                    <li v-for="(item, index) in data.accounts[data.currentType]" :key="index">
+                        <div class="grid-item">
+                            <div class="main-text name "><strong>{{ item.name }}</strong></div>
                         </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="grid-item">
-                        <div class="main-text name "><strong>AUB Credit Card</strong></div>
-                    </div>
-                    <div class="grid-item">
-                        <div class="main-text username">billjustin15</div>
-                    </div>
-                    <div class="grid-item">
-                        <div class="main-text password">billjustin15</div>
-                    </div>
-                    <div class="grid-item">
-                        <div class="main-text actions">
-                            <i class='bx bx-edit'></i>
-                            <i class='bx bx-trash' data-bs-toggle="modal" data-bs-target="#modal-delete" ></i>
+                        <div class="grid-item">
+                            <div class="main-text username">{{ item.username }}</div>
                         </div>
-                    </div>
-                </li>
-            </ul>
+                        <div class="grid-item">
+                            <div class="main-text password">{{ item.password }}</div>
+                        </div>
+                        <div class="grid-item">
+                            <div class="main-text actions">
+                                <i class='bx bx-edit'></i>
+                                <i class='bx bx-trash' data-bs-toggle="modal" data-bs-target="#modal-delete"></i>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                
+            </template>   
         </div>
 
-        <CreateAccountForm />
+        <CreateAccountForm @formAction="formAction"/>
         <DeleteConfirmation message="Do you really want to delete this account?" />
 
     </div>
@@ -60,6 +48,35 @@
 <script setup>
 import DeleteConfirmation from "@/components/action-modals/DeleteConfirmation.vue"
 import CreateAccountForm from "@/components/forms/modals/CreateAccountForm.vue"
+import { onMounted, reactive, ref } from "vue-demi"
+import { useRequestStore } from "@/store/request-store"
+
+    const requestStore = useRequestStore()
+
+    const data = reactive({
+        hasLoaded: false,
+        accounts: null,
+        currentType: "email"
+    })
+    const accountTypes = ['email', 'banking', 'investment', 'others']
+
+
+    onMounted(() => {
+        getAccounts()
+    })
+
+    const getAccounts = async() => {
+        const [ response, error ] = await requestStore.get({ url: "/accounts"})
+        if (!error) {
+            data.accounts = response
+            data.hasLoaded = true
+        }
+    }
+
+    const formAction = (response) => { 
+        // add the created account to the list of its specific type
+        data.accounts[response.type].push(response.data)
+    }
 
 </script>
 
